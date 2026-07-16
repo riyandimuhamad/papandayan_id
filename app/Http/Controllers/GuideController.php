@@ -43,7 +43,7 @@ class GuideController extends Controller
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
             $filename = uniqid('guide_') . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/guides', $filename);
+            $file->storeAs('guides', $filename, 'public');
             $validated['photo_path'] = 'guides/' . $filename;
         }
 
@@ -86,12 +86,12 @@ class GuideController extends Controller
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
             if ($guide->photo_path) {
-                Storage::delete('public/' . $guide->photo_path);
+                Storage::disk('public')->delete($guide->photo_path);
             }
 
             $file = $request->file('photo');
             $filename = uniqid('guide_') . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/guides', $filename);
+            $file->storeAs('guides', $filename, 'public');
             $validated['photo_path'] = 'guides/' . $filename;
         }
 
@@ -106,7 +106,7 @@ class GuideController extends Controller
     public function destroy(Guide $guide)
     {
         if ($guide->photo_path) {
-            Storage::delete('public/' . $guide->photo_path);
+            Storage::disk('public')->delete($guide->photo_path);
         }
         $guide->delete();
 

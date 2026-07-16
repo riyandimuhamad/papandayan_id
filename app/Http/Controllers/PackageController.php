@@ -58,7 +58,7 @@ class PackageController extends Controller
         if ($request->hasFile('cover_image')) {
             $file = $request->file('cover_image');
             $filename = uniqid('package_') . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/packages', $filename);
+            $file->storeAs('packages', $filename, 'public');
             $validated['cover_image'] = 'packages/' . $filename;
         }
 
@@ -118,12 +118,12 @@ class PackageController extends Controller
         if ($request->hasFile('cover_image')) {
             // Delete old photo if exists
             if ($package->cover_image) {
-                Storage::delete('public/' . $package->cover_image);
+                Storage::disk('public')->delete($package->cover_image);
             }
 
             $file = $request->file('cover_image');
             $filename = uniqid('package_') . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/packages', $filename);
+            $file->storeAs('packages', $filename, 'public');
             $validated['cover_image'] = 'packages/' . $filename;
         }
 
@@ -138,7 +138,7 @@ class PackageController extends Controller
     public function destroy(Package $package)
     {
         if ($package->cover_image) {
-            Storage::delete('public/' . $package->cover_image);
+            Storage::disk('public')->delete($package->cover_image);
         }
         $package->delete();
 

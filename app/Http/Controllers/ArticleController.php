@@ -61,7 +61,7 @@ class ArticleController extends Controller
         if ($request->hasFile('thumbnail')) {
             $file = $request->file('thumbnail');
             $filename = uniqid('article_') . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/articles', $filename);
+            $file->storeAs('articles', $filename, 'public');
             $validated['thumbnail_path'] = 'articles/' . $filename;
         }
 
@@ -123,12 +123,12 @@ class ArticleController extends Controller
 
         if ($request->hasFile('thumbnail')) {
             if ($article->thumbnail_path) {
-                Storage::delete('public/' . $article->thumbnail_path);
+                Storage::disk('public')->delete($article->thumbnail_path);
             }
 
             $file = $request->file('thumbnail');
             $filename = uniqid('article_') . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/articles', $filename);
+            $file->storeAs('articles', $filename, 'public');
             $validated['thumbnail_path'] = 'articles/' . $filename;
         }
 
@@ -143,7 +143,7 @@ class ArticleController extends Controller
     public function destroy(Article $article)
     {
         if ($article->thumbnail_path) {
-            Storage::delete('public/' . $article->thumbnail_path);
+            Storage::disk('public')->delete($article->thumbnail_path);
         }
         $article->delete();
 
