@@ -42,7 +42,7 @@ class PackageController extends Controller
             'itinerary' => 'nullable|string',
             'meeting_point' => 'nullable|string|max:255',
             'facilities' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -99,7 +99,7 @@ class PackageController extends Controller
             'itinerary' => 'nullable|string',
             'meeting_point' => 'nullable|string|max:255',
             'facilities' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         // Only update slug if name changed

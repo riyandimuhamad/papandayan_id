@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Documentation extends Model
+class HeroSlide extends Model
 {
     protected $fillable = [
-        'image_path',
-        'caption',
+        'image',
+        'title',
+        'subtitle',
+        'is_active',
         'order',
     ];
 }

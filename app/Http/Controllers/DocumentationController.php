@@ -36,7 +36,7 @@ class DocumentationController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'image_path' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'image_path' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
             'caption' => 'nullable|string|max:255',
             'order' => 'required|integer|min:0',
         ]);
@@ -80,7 +80,7 @@ class DocumentationController extends Controller
     public function update(Request $request, Documentation $documentation)
     {
         $validated = $request->validate([
-            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'caption' => 'nullable|string|max:255',
             'order' => 'required|integer|min:0',
         ]);

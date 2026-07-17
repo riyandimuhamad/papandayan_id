@@ -19,5 +19,12 @@ class AppServiceProvider extends ServiceProvider
         if (env('APP_ENV') === 'production' || isset($_ENV['VERCEL']) || getenv('IS_VERCEL')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        try {
+            $settings = \App\Models\Setting::all()->keyBy('key');
+            \Illuminate\Support\Facades\View::share('settings', $settings);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\View::share('settings', collect([]));
+        }
     }
 }

@@ -36,7 +36,7 @@ class GuideController extends Controller
             'specialization' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'phone' => 'nullable|string|max:20',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'order' => 'required|integer|min:0',
         ]);
 
@@ -79,7 +79,7 @@ class GuideController extends Controller
             'specialization' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'phone' => 'nullable|string|max:20',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'order' => 'required|integer|min:0',
         ]);
 

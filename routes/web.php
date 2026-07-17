@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 
 Route::get('/', function () {
-    $packages = \App\Models\Package::all();
+    $packages = \App\Models\Package::take(6)->get(); // Membatasi data agar memori tidak penuh
     $testimonials = \App\Models\Testimonial::with('package')->where('rating', '>=', 4)->orderByRaw('CASE WHEN `order` = 0 THEN 1 ELSE 0 END ASC')->orderBy('order', 'asc')->orderBy('created_at', 'desc')->take(8)->get();
     $documentations = \App\Models\Documentation::orderByRaw('CASE WHEN `order` = 0 THEN 1 ELSE 0 END ASC')->orderBy('order', 'asc')->orderBy('created_at', 'desc')->get();
     $articles = \App\Models\Article::where('status', 'published')->orderByRaw('CASE WHEN `order` = 0 THEN 1 ELSE 0 END ASC')->orderBy('order', 'asc')->orderBy('created_at', 'desc')->take(3)->get();
-    return view('welcome', compact('packages', 'testimonials', 'documentations', 'articles'));
+    $heroSlides = \App\Models\HeroSlide::where('is_active', true)->orderBy('order')->get();
+    return view('welcome', compact('packages', 'testimonials', 'documentations', 'articles', 'heroSlides'));
 });
 
 Route::get('/dashboard', function () {
@@ -34,8 +35,14 @@ Route::get('/dashboard', function () {
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Storage Symlink Bypass Route (sesuai PRD)
+// Storage Symlink Bypass Route (Diamankan dari Directory Traversal)
 Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+    // Whitelist folder yang diizinkan untuk diakses publik
+    $allowedFolders = ['hero', 'packages', 'guides', 'articles', 'documentations', 'settings', 'testimonials'];
+    if (!in_array($folder, $allowedFolders)) {
+        abort(404);
+    }
+
     $path = storage_path('app/public/' . $folder . '/' . $filename);
     $realPath = realpath($path);
     $storagePath = realpath(storage_path('app/public'));
@@ -57,6 +64,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('admin/articles', ArticleController::class)->names('admin.articles');
     Route::resource('admin/testimonials', TestimonialController::class)->names('admin.testimonials');
     Route::resource('admin/documentations', DocumentationController::class)->names('admin.documentations');
+    
+    // Settings & Hero Slides
+    Route::get('admin/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('admin.settings.index');
+    Route::put('admin/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('admin.settings.update');
+    Route::resource('admin/hero-slides', \App\Http\Controllers\HeroSlideController::class)->names('admin.hero-slides')->except(['show']);
 });
 
 require __DIR__.'/auth.php';

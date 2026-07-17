@@ -17,7 +17,7 @@
     </div>
     
     <div class="p-6 sm:p-8">
-        <form action="{{ route('admin.guides.update', $guide) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form id="data-form" action="{{ route('admin.guides.update', $guide) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -94,7 +94,7 @@
                         <!-- Order -->
             <div>
                 <label for="order" class="block text-sm font-semibold text-gray-700 mb-1">Urutan Tampil <span class="text-red-500">*</span></label>
-                <input type="number" name="order" id="order" value="{{ old('order', $) }}" required min="0" class="w-24 rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-500 focus:ring-opacity-50">
+                <input type="number" name="order" id="order" value="{{ old('order', $guide->order) }}" required min="0" class="w-24 rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-500 focus:ring-opacity-50">
                 <p class="text-xs text-gray-500 mt-1">Angka terkecil (contoh: 1) akan ditampilkan paling awal. Jika 0, akan diurutkan berdasarkan tanggal terbaru.</p>
                 @error('order')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -103,28 +103,80 @@
 
             <!-- Buttons -->
             <div class="flex items-center justify-end pt-4 border-t border-gray-100 gap-3">
-                <a href="{{ route('admin.guides.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 transition ease-in-out duration-150">Batal</a>
-                <button type="submit" class="px-4 py-2 bg-slate-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-800 focus:bg-slate-800 active:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">Update Pemandu</button>
+                <a href="{{ route('admin.guides.index') }}" class="px-5 py-2.5 bg-white border border-gray-300 rounded-lg font-bold text-gray-700 text-sm hover:bg-gray-50 focus:outline-none transition-all shadow-sm">Batal</a>
+                <button type="submit" id="btn-submit" class="px-5 py-2.5 bg-gray-300 border border-transparent rounded-lg font-bold text-gray-500 text-sm cursor-not-allowed focus:outline-none transition-all shadow-md" disabled>Simpan Perubahan</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    function previewImage(event) {
-        var reader = new FileReader();
-        reader.onload = function() {
-            var output = document.getElementById('photo-preview');
-            var placeholder = document.getElementById('photo-placeholder');
-            output.src = reader.result;
-            output.classList.remove('hidden');
-            if (placeholder) {
-                placeholder.classList.add('hidden');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('data-form');
+        const inputs = form.querySelectorAll('input, textarea, select');
+        const btnSubmit = document.getElementById('btn-submit');
+        
+        inputs.forEach(input => {
+            if(input.name !== '_token' && input.name !== '_method') {
+                if(input.type === 'file') {
+                    input.dataset.initial = '';
+                } else if(input.type === 'checkbox' || input.type === 'radio') {
+                    input.dataset.initial = input.checked ? 'true' : 'false';
+                } else {
+                    input.dataset.initial = input.value;
+                }
+                
+                input.addEventListener('input', checkChanges);
+                input.addEventListener('change', checkChanges);
+            }
+        });
+
+        window.previewImage = function(event) {
+            const input = event.target;
+            const preview = document.getElementById('photo-preview');
+            const placeholder = document.getElementById('photo-placeholder');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
+                    }
+                    if (placeholder) {
+                        placeholder.classList.add('hidden');
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+            checkChanges();
+        };
+
+        function checkChanges() {
+            let isChanged = false;
+            inputs.forEach(input => {
+                if(input.name !== '_token' && input.name !== '_method') {
+                    if(input.type === 'file') {
+                        if(input.files && input.files.length > 0) isChanged = true;
+                    } else if(input.type === 'checkbox' || input.type === 'radio') {
+                        const currentChecked = input.checked ? 'true' : 'false';
+                        if(currentChecked !== input.dataset.initial) isChanged = true;
+                    } else {
+                        if(input.value !== input.dataset.initial) isChanged = true;
+                    }
+                }
+            });
+
+            if (isChanged) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'border-transparent');
+                btnSubmit.classList.add('bg-slate-900', 'text-white', 'hover:bg-slate-800');
+            } else {
+                btnSubmit.disabled = true;
+                btnSubmit.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'border-transparent');
+                btnSubmit.classList.remove('bg-slate-900', 'text-white', 'hover:bg-slate-800');
             }
         }
-        if(event.target.files[0]) {
-            reader.readAsDataURL(event.target.files[0]);
-        }
-    }
+    });
 </script>
 @endsection

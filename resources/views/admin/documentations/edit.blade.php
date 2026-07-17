@@ -17,7 +17,7 @@
     </div>
     
     <div class="p-6">
-        <form action="{{ route('admin.documentations.update', $documentation) }}" method="POST" enctype="multipart/form-data">
+        <form id="data-form" action="{{ route('admin.documentations.update', $documentation) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -70,17 +70,63 @@
                 </div>
             </div>
 
-            <div class="mt-8 flex justify-end">
-                <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors">
-                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                    Perbarui Data
-                </button>
+            <!-- Buttons -->
+            <div class="flex items-center justify-end pt-4 border-t border-gray-100 gap-3">
+                <a href="{{ route('admin.documentations.index') }}" class="px-5 py-2.5 bg-white border border-gray-300 rounded-lg font-bold text-gray-700 text-sm hover:bg-gray-50 focus:outline-none transition-all shadow-sm">Batal</a>
+                <button type="submit" id="btn-submit" class="px-5 py-2.5 bg-gray-300 border border-transparent rounded-lg font-bold text-gray-500 text-sm cursor-not-allowed focus:outline-none transition-all shadow-md" disabled>Simpan Perubahan</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('data-form');
+        const inputs = form.querySelectorAll('input, textarea, select');
+        const btnSubmit = document.getElementById('btn-submit');
+        
+        inputs.forEach(input => {
+            if(input.name !== '_token' && input.name !== '_method') {
+                if(input.type === 'file') {
+                    input.dataset.initial = '';
+                } else if(input.type === 'checkbox' || input.type === 'radio') {
+                    input.dataset.initial = input.checked ? 'true' : 'false';
+                } else {
+                    input.dataset.initial = input.value;
+                }
+                
+                input.addEventListener('input', checkChanges);
+                input.addEventListener('change', checkChanges);
+            }
+        });
+
+        function checkChanges() {
+            let isChanged = false;
+            inputs.forEach(input => {
+                if(input.name !== '_token' && input.name !== '_method') {
+                    if(input.type === 'file') {
+                        if(input.files && input.files.length > 0) isChanged = true;
+                    } else if(input.type === 'checkbox' || input.type === 'radio') {
+                        const currentChecked = input.checked ? 'true' : 'false';
+                        if(currentChecked !== input.dataset.initial) isChanged = true;
+                    } else {
+                        if(input.value !== input.dataset.initial) isChanged = true;
+                    }
+                }
+            });
+
+            if (isChanged) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'border-transparent');
+                btnSubmit.classList.add('bg-slate-900', 'text-white', 'hover:bg-slate-800');
+            } else {
+                btnSubmit.disabled = true;
+                btnSubmit.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'border-transparent');
+                btnSubmit.classList.remove('bg-slate-900', 'text-white', 'hover:bg-slate-800');
+            }
+        }
+    });
+
     function imageViewer(initialUrl = '') {
         return {
             imageUrl: initialUrl,
@@ -100,6 +146,8 @@
                 if(document.getElementById('image_path_hidden')) {
                     document.getElementById('image_path_hidden').value = '';
                 }
+                // Trigger change event to enable button
+                document.getElementById('image_path').dispatchEvent(new Event('change'));
             }
         }
     }

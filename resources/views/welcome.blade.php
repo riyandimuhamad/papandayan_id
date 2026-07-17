@@ -1,15 +1,21 @@
 @extends('layouts.public')
 
-@section('title', 'Beranda')
 
 @section('content')
 <!-- Hero Slider Section -->
 <div x-data="{ 
         activeSlide: 0,
         slides: [
-            { image: 'https://images.unsplash.com/photo-1542308111-e63ccce11666?q=80&w=1920&auto=format&fit=crop', title: 'Taklukkan Puncak Impian', subtitle: 'Jelajahi keindahan kawah, hutan mati, dan padang edelweis bersama tim profesional kami.' },
-            { image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1920&auto=format&fit=crop', title: 'Pengalaman Tak Terlupakan', subtitle: 'Fasilitas premium, aman, dan nyaman. Cocok untuk pendaki pemula maupun profesional.' },
-            { image: 'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?q=80&w=1920&auto=format&fit=crop', title: 'Sunrise Terbaik di Garut', subtitle: 'Saksikan keindahan matahari terbit dari ketinggian 2665 MDPL.' }
+            @foreach($heroSlides as $slide)
+            { 
+                image: '{{ strpos($slide->image, 'http') === 0 ? $slide->image : asset($slide->image) }}', 
+                title: '{{ addslashes($slide->title) }}', 
+                subtitle: '{{ addslashes($slide->subtitle) }}' 
+            },
+            @endforeach
+            @if($heroSlides->isEmpty())
+            { image: 'https://images.unsplash.com/photo-1542308111-e63ccce11666?q=80&w=1920&auto=format&fit=crop', title: 'Welcome', subtitle: 'No slides available' }
+            @endif
         ],
         next() { this.activeSlide = this.activeSlide === this.slides.length - 1 ? 0 : this.activeSlide + 1 },
         prev() { this.activeSlide = this.activeSlide === 0 ? this.slides.length - 1 : this.activeSlide - 1 },
@@ -60,11 +66,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
                 <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 relative inline-block">
-                    Tentang papandayan_id
+                    {{ $settings['about_title']->value ?? 'Tentang papandayan_id' }}
                     <span class="absolute -bottom-2 left-0 w-2/3 h-1.5 bg-yellow-500 rounded-full"></span>
                 </h2>
-                <p class="text-slate-600 mb-6 leading-relaxed text-lg">
-                    papandayan_id adalah penyedia layanan operator trip resmi dan terpercaya untuk kawasan Gunung Papandayan. Berawal dari kecintaan terhadap alam Garut, kami hadir untuk memastikan pengalaman pendakian Anda aman, nyaman, dan meninggalkan memori indah.
+                <p class="text-slate-600 mb-6 leading-relaxed text-lg whitespace-pre-line">
+                    {{ $settings['about_description']->value ?? 'papandayan_id adalah penyedia layanan operator trip resmi dan terpercaya untuk kawasan Gunung Papandayan.' }}
                 </p>
                 
                 <div class="space-y-6 mt-8">
@@ -78,7 +84,7 @@
                             </div>
                             <div class="ml-4">
                                 <h4 class="text-lg font-bold text-slate-900 mb-2">Visi Kami</h4>
-                                <p class="text-slate-600 leading-relaxed text-sm">Menjadi operator wisata alam terkemuka di Jawa Barat yang mengedepankan kelestarian lingkungan, keselamatan pengunjung, dan pemberdayaan masyarakat lokal.</p>
+                                <p class="text-slate-600 leading-relaxed text-sm whitespace-pre-line">{{ $settings['vision_description']->value ?? 'Menjadi operator wisata alam terkemuka.' }}</p>
                             </div>
                         </div>
                     </div>
@@ -94,9 +100,13 @@
                             <div class="ml-4">
                                 <h4 class="text-lg font-bold text-slate-900 mb-2">Misi Kami</h4>
                                 <ul class="text-slate-600 text-sm space-y-2 list-disc list-outside ml-4">
-                                    <li>Menyediakan layanan pendakian dengan standar keamanan (SOP) yang ketat.</li>
-                                    <li>Memberikan fasilitas premium untuk menjamin kenyamanan klien.</li>
-                                    <li>Mengedukasi pendaki tentang pentingnya menjaga kebersihan ekosistem Gunung Papandayan.</li>
+                                    @php
+                                        $missionText = strip_tags(str_replace(['<ul>', '</ul>', '<li>', '</li>'], ['', '', '', "\n"], $settings['mission_description']->value ?? 'Memberikan pelayanan terbaik.'));
+                                        $missions = array_filter(array_map('trim', explode("\n", $missionText)));
+                                    @endphp
+                                    @foreach($missions as $misi)
+                                        <li>{{ $misi }}</li>
+                                    @endforeach
                                 </ul>
                             </div>
                         </div>
@@ -105,7 +115,11 @@
             </div>
             <div class="relative">
                 <div class="absolute inset-0 bg-yellow-500 transform translate-x-6 translate-y-6 rounded-3xl"></div>
-                <img src="https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=1000&auto=format&fit=crop" alt="Tim papandayan_id" class="relative z-10 rounded-3xl w-full h-auto object-cover shadow-2xl">
+                @php
+                    $aboutImg = $settings['about_image']->value ?? 'https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=1000&auto=format&fit=crop';
+                    if (strpos($aboutImg, 'http') !== 0) $aboutImg = asset($aboutImg);
+                @endphp
+                <img src="{{ $aboutImg }}" alt="Tim papandayan_id" class="relative z-10 rounded-3xl w-full h-auto object-cover shadow-2xl">
             </div>
         </div>
     </div>
