@@ -29,13 +29,16 @@
         }
     ],
     "env": {
+        "APP_NAME": "Papandayan ID Demo",
         "APP_ENV": "production",
-        "APP_DEBUG": "false",
+        "APP_KEY": "base64:4I/Tfxx1ajYceRJRy0BUgsiYdMIk4K9fSMm1MXAnWlc=",
+        "APP_DEBUG": "true",
         "DB_CONNECTION": "sqlite",
         "FILESYSTEM_DISK": "public",
         "CACHE_DRIVER": "array",
         "SESSION_DRIVER": "cookie",
         "QUEUE_CONNECTION": "sync",
-        "LOG_CHANNEL": "stderr"
+        "LOG_CHANNEL": "stderr",
+        "VIEW_COMPILED_PATH": "/tmp"
     }
 }
