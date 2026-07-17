@@ -30,6 +30,14 @@ if ($isVercel) {
             @mkdir($storagePath . $dir, 0777, true);
         }
     }
+    
+    // Copy SQLite to /tmp so it becomes writable for Demo
+    $tmpDb = '/tmp/database.sqlite';
+    if (!file_exists($tmpDb)) {
+        @copy(__DIR__.'/../database/database.sqlite', $tmpDb);
+    }
+    $_ENV['DB_DATABASE'] = $tmpDb;
+    putenv('DB_DATABASE='.$tmpDb);
 }
 
 return $app;
